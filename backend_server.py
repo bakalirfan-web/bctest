@@ -6,8 +6,8 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 HOST = os.getenv("HOST", "0.0.0.0")
 PORT = int(os.getenv("PORT", "8787"))
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "8620133012:AAEqTCZnL-7oE7XbMFqvrLGxMxvUTksyxU4")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "-1003683162798")
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 ALLOWED_ORIGIN = os.getenv("ALLOWED_ORIGIN", "*")
 
 
@@ -19,6 +19,15 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
+
+    def do_GET(self):
+        if self.path not in ("/", "/health", "/healthz"):
+            self._set_headers(404)
+            self.wfile.write(json.dumps({"ok": False, "error": "Not found"}).encode())
+            return
+
+        self._set_headers(200)
+        self.wfile.write(json.dumps({"ok": True, "service": "telegram-backend"}).encode())
 
     def do_OPTIONS(self):
         self._set_headers(204)
