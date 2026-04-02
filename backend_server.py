@@ -20,15 +20,6 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
 
-    def do_GET(self):
-        if self.path not in ("/", "/health", "/healthz"):
-            self._set_headers(404)
-            self.wfile.write(json.dumps({"ok": False, "error": "Not found"}).encode())
-            return
-
-        self._set_headers(200)
-        self.wfile.write(json.dumps({"ok": True, "service": "telegram-backend"}).encode())
-
     def do_OPTIONS(self):
         self._set_headers(204)
 
