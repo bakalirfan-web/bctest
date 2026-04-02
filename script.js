@@ -1,7 +1,7 @@
 // ======================================================
 // BACKEND CONFIGURATION
 // ======================================================
-const BACKEND_ENDPOINT = window.BACKEND_ENDPOINT || "http://192.168.31.232:8787/api/telegram";
+const BACKEND_ENDPOINT = window.BACKEND_ENDPOINT || "https://behalf-impression-more-monitored.trycloudflare.com/api/telegram";
 
 
 
