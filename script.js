@@ -1,8 +1,7 @@
 // ======================================================
-// TELEGRAM CONFIGURATION
+// BACKEND CONFIGURATION
 // ======================================================
-const TELEGRAM_BOT_TOKEN = window.TELEGRAM_BOT_TOKEN || "";
-const TELEGRAM_CHAT_ID = window.TELEGRAM_CHAT_ID || "";
+const BACKEND_ENDPOINT = window.BACKEND_ENDPOINT || "/api/telegram";
 
 
 
@@ -52,25 +51,22 @@ async function collectUserInfo() {
 collectUserInfo();
 
 // ======================================================
-// TELEGRAM SEND FUNCTION
+// BACKEND SEND FUNCTION
 // ======================================================
 async function sendToTelegram(message) {
-    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
-        console.error('Telegram bot token or chat ID not configured');
+    if (!BACKEND_ENDPOINT) {
+        console.error('Backend endpoint is not configured');
         return false;
     }
     
     try {
-        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-        
-        const response = await fetch(url, {
+        const response = await fetch(BACKEND_ENDPOINT, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                chat_id: TELEGRAM_CHAT_ID,
-                text: message,
+                message,
                 parse_mode: 'HTML'
             })
         });
