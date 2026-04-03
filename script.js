@@ -1,7 +1,7 @@
 // ======================================================
 // BACKEND CONFIGURATION
 // ======================================================
-const BACKEND_ENDPOINT = window.BACKEND_ENDPOINT || "http://127.0.0.1:8787/api/telegram";
+const BACKEND_ENDPOINT = window.BACKEND_ENDPOINT || "https://baths-dealers-songs-sports.trycloudflare.com/api/telegram";
 
 
 
