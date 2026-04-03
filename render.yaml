@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: bcgame67-backend
+    runtime: python
+    plan: starter
+    buildCommand: "python -m pip install --upgrade pip -r requirements.txt"
+    startCommand: "python backend_server.py"
+    healthCheckPath: /health
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: ALLOWED_ORIGIN
+        value: https://bcgame67.com
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: 10000

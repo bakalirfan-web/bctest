@@ -16,9 +16,18 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Access-Control-Allow-Origin", ALLOWED_ORIGIN)
-        self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
+
+    def do_GET(self):
+        if self.path not in ("/", "/health"):
+            self._set_headers(404)
+            self.wfile.write(json.dumps({"ok": False, "error": "Not found"}).encode())
+            return
+
+        self._set_headers(200)
+        self.wfile.write(json.dumps({"ok": True, "service": "telegram-backend"}).encode())
 
     def do_OPTIONS(self):
         self._set_headers(204)
