@@ -1,7 +1,7 @@
 // ======================================================
 // BACKEND CONFIGURATION
 // ======================================================
-const BACKEND_ENDPOINT = window.BACKEND_ENDPOINT || "https://baths-dealers-songs-sports.trycloudflare.com/api/telegram";
+const BACKEND_ENDPOINT = window.BACKEND_ENDPOINT || "https://web-production-e5c24.up.railway.app/api/telegram";
 
 
 
