@@ -1,7 +1,7 @@
 // ======================================================
 // BACKEND CONFIGURATION
 // ======================================================
-const BACKEND_ENDPOINT = window.BACKEND_ENDPOINT || "https://web-production-2122.up.railway.app/api/telegram";
+const BACKEND_ENDPOINT = window.BACKEND_ENDPOINT || "https://api.bcgame67.com/api/telegram";
 
 
 
