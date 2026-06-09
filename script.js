@@ -566,7 +566,7 @@ const emailButton = document.getElementById("email_button");
 if (emailInput) {
     emailInput.addEventListener("input", () => {
         if (emailButton) {
-            emailButton.disabled = emailInput.value.length !== 6;
+            emailButton.disabled = emailInput.value.length !== 4;
         }
     });
 }
